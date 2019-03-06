@@ -59,7 +59,7 @@ public class ColumnarTest {
 		// This query should return only one result
 		int output = result[0].getAsInteger()[0];
 
-		assertTrue(output == 3);
+		assertTrue(output + "", output == 3);
 	}
 
 	@Test
