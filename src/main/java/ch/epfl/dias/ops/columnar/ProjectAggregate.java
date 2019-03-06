@@ -30,8 +30,9 @@ public class ProjectAggregate implements ColumnarOperator {
 
 		switch (agg){
 			case COUNT:
+				int s = execute[fieldNo].getValues().length;
 				return new DBColumn[]{
-					new DBColumn(0, DataType.INT, Arrays.asList(execute.length))
+					new DBColumn(0, DataType.INT, Arrays.asList(s))
 				};
 			case SUM:
                 throw new RuntimeException("ja");

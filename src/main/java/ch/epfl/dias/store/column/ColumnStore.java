@@ -9,7 +9,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class ColumnStore extends Store {
     private final DataType[] schema;
@@ -74,5 +73,9 @@ public class ColumnStore extends Store {
         }
 
         return dbColumns;
+    }
+
+    public DataType[] getSchema() {
+        return schema;
     }
 }

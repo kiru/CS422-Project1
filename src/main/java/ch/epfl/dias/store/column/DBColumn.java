@@ -23,4 +23,8 @@ public class DBColumn {
         }
         return integers;
     }
+
+    public Object[] getValues() {
+        return values;
+    }
 }

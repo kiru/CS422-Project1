@@ -15,6 +15,13 @@ public class Scan implements ColumnarOperator {
 
     @Override
     public DBColumn[] execute() {
-        return store.getColumns(new int[]{0});
+        final int length = store.getSchema().length;
+        final int[] ints = new int[length];
+        for (int i = 0; i < ints.length; i++) {
+            ints[i] = i;
+        }
+
+        return store.getColumns(ints);
     }
 }
+

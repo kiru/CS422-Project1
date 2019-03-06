@@ -1,8 +1,10 @@
 package ch.epfl.dias.ops.columnar;
 
 import ch.epfl.dias.ops.BinaryOp;
+import ch.epfl.dias.store.DataType;
 import ch.epfl.dias.store.column.DBColumn;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,29 +30,56 @@ public class Select implements ColumnarOperator {
 
     @Override
     public DBColumn[] execute() {
-        final List<DBColumn> collect = Arrays.stream(child.execute())
-            .filter(o -> {
-                final Integer[] asInteger = o.getAsInteger();
-                return match(asInteger[0], value);
-            })
-            .collect(Collectors.toList());
-        return collect.toArray(new DBColumn[]{});
+        final DBColumn[] execute = child.execute();
+        final DBColumn dbColumn = execute[fieldNo];
+
+        final Integer[] asInteger = dbColumn.getAsInteger();
+
+        List<Integer> indexes = new ArrayList<>();
+        for (int i = 0; i < asInteger.length; i++) {
+            Integer integer = asInteger[i];
+            if (match(integer, value)) {
+                indexes.add(i);
+            }
+        }
+
+        final DBColumn[] copy = Arrays.copyOf(execute, execute.length);
+        for (int i = 0; i < copy.length; i++) {
+            DBColumn column = copy[i];
+            copy[i] = removeByArray(column, indexes);
+        }
+
+        return copy;
     }
+
+
+    public DBColumn removeByArray(DBColumn input, List<Integer> indexes) {
+        final Object[] original = input.getValues();
+        final Object[] changed = new Object[indexes.size()];
+
+        int i = 0;
+        for (Integer index : indexes) {
+            changed[i++] = original[index];
+        }
+
+        return new DBColumn(0, DataType.INT, Arrays.asList(changed));
+    }
+
 
     private boolean match(Integer valueFromDB, Integer valueFromUser) {
         switch (op) {
             case LT:
-                return valueFromDB <= valueFromDB;
+                return valueFromDB <= valueFromUser;
             case LE:
-                return valueFromDB < valueFromDB;
+                return valueFromDB < valueFromUser;
             case EQ:
-                return valueFromDB == valueFromDB;
+                return valueFromDB.equals(valueFromUser);
             case NE:
-                return valueFromDB != valueFromDB;
+                return valueFromDB != valueFromUser;
             case GT:
-                return valueFromDB > valueFromDB;
+                return valueFromDB > valueFromUser;
             case GE:
-                return valueFromDB >= valueFromDB;
+                return valueFromDB >= valueFromUser;
         }
         throw new RuntimeException("WRong");
     }
